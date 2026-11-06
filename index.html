@@ -46,7 +46,7 @@ dl{margin:0}dt{font-weight:700;margin-top:8px}dd{margin:0 0 4px;word-break:break
 </div>
 <h2>Emergency contacts<span class="kn">ತುರ್ತು ಸಂಪರ್ಕಗಳು</span></h2>
 <div id="contacts"></div>
-<button class="btn loc" id="locbtn" style="color:#1565c0">📍 Add my location to messages<span class="kn" style="color:#1565c0">ಸಂದೇಶಗಳಿಗೆ ನನ್ನ ಸ್ಥಳ ಸೇರಿಸಿ</span></button>
+<button class="btn loc" id="locbtn" style="color:#1565c0">📍 Getting your location... / ಸ್ಥಳ ಪಡೆಯಲಾಗುತ್ತಿದೆ...</button>
 <div id="medwrap"><h2>Medical information<span class="kn">ವೈದ್ಯಕೀಯ ಮಾಹಿತಿ</span></h2><dl id="med"></dl></div>
 <p class="note">Details were entered by the person or their family and have not been verified.<span class="kn">ಈ ಮಾಹಿತಿಯನ್ನು ವ್ಯಕ್ತಿ ಅಥವಾ ಅವರ ಕುಟುಂಬದವರು ನೀಡಿದ್ದಾರೆ.</span></p>
 </div>
@@ -97,13 +97,17 @@ function init(){
   for(const k of["b","a","m","x","d"]){if(!P[k])continue;any=true;
     const dt=el("dt",null,LAB[k][0]+" / "+LAB[k][1]);dl.appendChild(dt);dl.appendChild(el("dd",null,P[k]))}
   if(!any)$("medwrap").hidden=true;
-  $("locbtn").onclick=()=>{
-    if(!navigator.geolocation){alert("Location not available");return}
+  const B=$("locbtn");
+  function getLoc(auto){
+    if(!navigator.geolocation){B.textContent="Location not available / ಸ್ಥಳ ಲಭ್ಯವಿಲ್ಲ";return}
+    B.textContent="Getting your location... / ಸ್ಥಳ ಪಡೆಯಲಾಗುತ್ತಿದೆ...";
     navigator.geolocation.getCurrentPosition(p=>{
       loc="https://maps.google.com/?q="+p.coords.latitude.toFixed(5)+","+p.coords.longitude.toFixed(5);
-      links();$("locbtn").textContent="✔ Location added / ಸ್ಥಳ ಸೇರಿಸಲಾಗಿದೆ";
-    },()=>alert("Could not get location. Please allow location access."),{enableHighAccuracy:true,timeout:15000});
-  };
+      links();B.textContent="✔ Your location will be sent in messages / ಸಂದೇಶದಲ್ಲಿ ನಿಮ್ಮ ಸ್ಥಳ ಹೋಗುತ್ತದೆ";
+    },()=>{B.textContent="📍 Tap to add your location to messages / ಸ್ಥಳ ಸೇರಿಸಲು ಒತ್ತಿ"},{enableHighAccuracy:true,timeout:15000});
+  }
+  B.onclick=()=>getLoc(false);
+  getLoc(true);
 }
 window.addEventListener("hashchange",()=>location.reload());
 init();
